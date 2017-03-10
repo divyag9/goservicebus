@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/divyag9/goservicebus/packages/servicebus"
 	"github.com/divyag9/goservicebus/server"
@@ -27,15 +28,27 @@ var (
 func main() {
 	flag.Parse()
 	request := getRequest()
-	response, err := callServiceBus(request)
-	if err != nil {
-		log.Fatalf("Error making servicebuscall: %v", err)
+	count := 0
+	var elapsed time.Duration
+	for count < 20 {
+		start := time.Now()
+		response, err := callServiceBus(request)
+		if err != nil {
+			log.Fatalf("Error making servicebuscall: %v", err)
+		}
+		if response.Result != nil {
+			fmt.Println("put id: ", response.Result.ID)
+		} else {
+			fmt.Println("put error: ", response.Error)
+		}
+		//elapsed = elapsed + timeTrack(time.Now(), "servicebus call")
+		elapsed = elapsed + time.Since(start)
+		count++
+
 	}
-	if response.Result != nil {
-		fmt.Println("put id: ", response.Result.ID)
-	} else {
-		fmt.Println("put error: ", response.Error)
-	}
+	average := elapsed / time.Duration(count)
+	fmt.Println("Average elapsed: ", average)
+
 }
 
 func getFileContents(filename string) ([]byte, error) {
