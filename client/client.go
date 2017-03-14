@@ -99,10 +99,13 @@ func getRequest() *servicebus.Request {
 }
 
 func callServiceBus(request *servicebus.Request) (*servicebus.Response, error) {
+	start := time.Now()
 	requestBytes, err := json.Marshal(request)
 	if err != nil {
 		return nil, err
 	}
+	elapsed := time.Since(start)
+	fmt.Println("Elapsed Marshal: ", elapsed)
 	// Contact the server and print out its response.
 	busServer := server.NewServer(server.CallServiceBus)
 	response, err := busServer.CallServiceBus(requestBytes, *serviceBusEndpoint)
